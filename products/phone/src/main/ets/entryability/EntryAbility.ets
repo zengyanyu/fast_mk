@@ -2,6 +2,7 @@ import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { display, window } from '@kit.ArkUI';
 import { BreakpointConstants } from '@mk/basic';
+import deviceInfo from '@ohos.deviceInfo';
 
 export default class EntryAbility extends UIAbility {
   private windowObj?: window.Window
@@ -53,6 +54,21 @@ export default class EntryAbility extends UIAbility {
           this.updateBreakpoint(windowSize.width)
         })
       });
+
+    // 非 2in1 模式下开启 沉浸式导航
+    if (deviceInfo.deviceType != '2in1') {
+      // 开启全屏
+      const win = windowStage.getMainWindowSync()
+      win.setWindowLayoutFullScreen(true)
+
+      // 获取安全区域
+      const top = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
+        .topRect
+      AppStorage.setOrCreate<number>('safeTop', px2vp(top.height))
+      const bottom = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR)
+        .bottomRect
+      AppStorage.setOrCreate<number>('safeBottom', px2vp(bottom.height))
+    }
 
     windowStage.loadContent('pages/Index', (err) => {
       if (err.code) {

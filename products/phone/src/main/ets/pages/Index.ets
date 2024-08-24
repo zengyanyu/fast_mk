@@ -17,6 +17,8 @@ struct Index {
   breakPoint: string = 'xs'
   @State
   activeIndex: number = 0
+  @StorageProp('safeBottom')
+  safeBottom: number = 0
   list: TabItem[] = [
     {
       text: '首页',
@@ -65,6 +67,7 @@ struct Index {
         .tabBar(this.TabItemBuilder(item, index))
       })
     }
+    .padding({ bottom: this.safeBottom })
     .barPosition(new BreakPointType({
       sm: BarPosition.End,
       md: BarPosition.End,

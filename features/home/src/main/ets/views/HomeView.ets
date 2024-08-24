@@ -1,6 +1,16 @@
+import { MkLoading } from '@mk/basic'
+import {
+  getBannerApi,
+  getCategoryApi,
+  getHotApi,
+  getNewApi,
+  getOneApi,
+  getPreferenceApi,
+  getRecommendApi
+} from '../api'
 import { DiscountGoodsComp, DiscountType } from '../components/DiscountGoodsComp'
 import { MkGoods } from '../components/MkGoods'
-import { Banner, CategoryItem, MkGoodsItem, Params } from '../viewmodel'
+import { Banner, CategoryItem, GoodsItemsDataSource, HotResult, MkGoodsItem, Params } from '../viewmodel'
 
 
 @Component
@@ -18,7 +28,18 @@ export struct HomeView {
   // 新鲜好物
   @State newGoods: MkGoodsItem[] = []
   // 推荐商品
-  @State recommendGoods: MkGoodsItem[] = []
+  // @State recommendGoods: MkGoodsItem[] = []
+  // 替换为下面
+  @State recommendGoodsLazy: GoodsItemsDataSource = new GoodsItemsDataSource()
+  // 顶部安全区域
+  @StorageProp('safeTop')
+  safeTop: number = 0
+  // 记录获取的数据量
+  page: number = 1
+  // 加载效果
+  @State isLoading: boolean = false
+  // 下拉刷新
+  @State refresh: boolean = false
 
   // 生成模拟数据
   mockData() {
@@ -69,19 +90,89 @@ export struct HomeView {
       "orderNum": 643
     })
 
-    this.recommendGoods = new Array(8).fill({
-      "id": "4033959",
-      "name": "3秒快速拆琴轻松保养odin奥丁12半音阶口琴",
-      "price": 329,
-      "picture": "https://yanxuan-item.nosdn.127.net/937a8e46a9284e8f7e00e13911ecfbe7.png",
-      "payCount": 0
-    })
+    // this.recommendGoods = new Array(8).fill({
+    //   "id": "4033959",
+    //   "name": "3秒快速拆琴轻松保养odin奥丁12半音阶口琴",
+    //   "price": 329,
+    //   "picture": "https://yanxuan-item.nosdn.127.net/937a8e46a9284e8f7e00e13911ecfbe7.png",
+    //   "payCount": 0
+    // })
   }
 
-  aboutToAppear(): void {
+  aboutToAppear() {
     // mock数据
-    this.mockData()
+    // this.mockData()
+    this.getAllData()
+  }
 
+  async getAllData() {
+    // const bannerRes = await getBannerApi()
+    // this.banners = bannerRes.data.result
+    // // 分类
+    // const categoryRes = await getCategoryApi()
+    // this.categories = categoryRes.data.result
+    // // 特惠推荐
+    // const preRes = await getPreferenceApi()
+    // // Log.info(preRes.data.result.subTypes[0].goodsItems.items)
+    // this.saleGoods = preRes.data.result.subTypes[0].goodsItems.items
+    //
+    // // 爆款推荐
+    // const hotRes = await getHotApi()
+    // // Log.info(preRes.data.result.subTypes[0].goodsItems.items)
+    // this.hotGoods = hotRes.data.result.subTypes[0].goodsItems.items
+    //
+    // // 一站买全
+    // const oneRes = await getOneApi()
+    // // Log.info(preRes.data.result.subTypes[0].goodsItems.items)
+    // this.oneGoods = oneRes.data.result.subTypes[0].goodsItems.items
+    const proArr = [getBannerApi(), getCategoryApi(), getPreferenceApi(),
+      getHotApi(), getOneApi(), getNewApi(), getRecommendApi()]
+    // allSettled 可以获取到每个请求状态成功或失败
+    const resArr = await Promise.allSettled(proArr)
+
+    if (resArr[0].status == 'fulfilled') {
+      this.banners = resArr[0].value.data.result as Banner[]
+    }
+    if (resArr[1].status == 'fulfilled') {
+      this.categories = resArr[1].value.data.result as CategoryItem[]
+    }
+    if (resArr[2].status == 'fulfilled') {
+      this.saleGoods = (resArr[2].value.data.result as HotResult).subTypes[0].goodsItems.items
+    }
+    if (resArr[3].status == 'fulfilled') {
+      this.hotGoods = (resArr[3].value.data.result as HotResult).subTypes[0].goodsItems.items
+    }
+    if (resArr[4].status == 'fulfilled') {
+      this.oneGoods = (resArr[4].value.data.result as HotResult).subTypes[0].goodsItems.items
+    }
+    if (resArr[5].status == 'fulfilled') {
+      this.newGoods = resArr[5].value.data.result as MkGoodsItem[]
+    }
+    if (resArr[6].status == 'fulfilled') {
+      // this.recommendGoods = resArr[6].value.data.result as MkGoodsItem[]
+      // 替换为数据源中的替换的方法
+      this.recommendGoodsLazy.reloadData(resArr[6].value.data.result as object[])
+    }
+  }
+
+  // 触底加载更多
+  async getMoreData() {
+    // 累加
+    this.page++
+    // 获取 对应的数据 赋值给数组
+    const res = await getRecommendApi(this.page * 8)
+    // 直接赋值
+    // this.recommendGoods = res.data.result
+    // 替换为懒加载的数据
+    this.recommendGoodsLazy.reloadData(res.data.result)
+  }
+
+  // 刷新数据
+  async refreshData() {
+    // 有可能加载了更多数据
+    this.page = 1
+    // 重新获取所有的数据
+    await this.getAllData()
   }
 
   @Builder
@@ -116,182 +207,213 @@ export struct HomeView {
     .padding(10)
     .backgroundColor(params.bg)
     .borderRadius(8)
+    .margin({
+
+      top: AppStorage.get<number>('safeTop')
+    })
+  }
+
+  // 下拉刷新 Builder
+  @Builder
+  RefreshBuilder() {
+    Row() {
+      MkLoading()
+    }
+    .width('100%')
+    .padding(10)
+    .justifyContent(FlexAlign.Center)
   }
 
   build() {
-    Scroll() {
-      Column() {
-        // 轮播图 + 搜索
-        Stack({ alignContent: Alignment.Top }) {
-          Swiper() {
-            ForEach(this.banners, (item: Banner) => {
-              Image(item.imgUrl)
-            })
-          }
-          .indicator(
-            DotIndicator.dot()
-              .itemWidth(8)
-              .itemHeight(4)
-              .color('#33191919')
-              .selectedItemWidth(24)
-              .selectedItemHeight(4)
-              .selectedColor('#191919')
-          )
-
-          Row() {
-            Row({ space: 4 }) {
-              Image($r('[basic].media.ic_public_search'))
-                .width(16)
-                .height(16)
-                .fillColor($r('[basic].color.white'))
-              Text('搜索...')
-                .fontSize(14)
-                .fontColor($r('[basic].color.white'))
-            }
-            .backgroundColor('#33191919')
-            .width('100%')
-            .height(40)
-            .borderRadius(20)
-            .padding({ left: 12 })
-          }
-          .padding({ left: 16, right: 16 })
-        }
-        .width('100%')
-
-
-        // 分类
-        Column({ space: 10 }) {
-          // 分类
-          List({ space: 16 }) {
-            ForEach(this.categories, (item: CategoryItem) => {
-              ListItem() {
-                Column() {
-                  Image(item.picture)
-                    .width(56)
-                    .aspectRatio(1)
-                  Text(item.name)
-                    .fontSize(10)
-                    .fontColor('#CC191919')
-                }
-                .width(60)
-                .height(80)
-                .borderRadius(30)
-
-                .clip(true)
-                .backgroundImage(item.picture)
-                .backgroundImageSize(ImageSize.Contain)
-                .backgroundImagePosition(Alignment.Center)
-                .backgroundBlurStyle(
-                  BlurStyle.BACKGROUND_ULTRA_THICK,
-                  { scale: 0.25 }
-                )
+    if (this.isLoading) {
+      MkLoading();
+    } else {
+      Refresh({ refreshing: this.refresh, builder: this.RefreshBuilder() }) {
+        Scroll() {
+          Column() {
+            // 轮播图 + 搜索
+            Stack({ alignContent: Alignment.Top }) {
+              Swiper() {
+                ForEach(this.banners, (item: Banner) => {
+                  Image(item.imgUrl)
+                })
               }
-            })
-          }
-          .width('100%')
-          .height(92)
-          .scrollBar(BarState.Off)
-          .listDirection(Axis.Horizontal)
-          .alignListItem(ListItemAlign.Center)
+              .indicator(
+                DotIndicator.dot()
+                  .itemWidth(8)
+                  .itemHeight(4)
+                  .color('#33191919')
+                  .selectedItemWidth(24)
+                  .selectedItemHeight(4)
+                  .selectedColor('#191919')
+              )
 
-          // 特惠推荐
-          Column({ space: 10 }) {
-            Image($r('app.media.home_cmd_title'))
-              .width(150)
-              .height(20)
-            Row() {
-              Image($r('app.media.home_cmd_inner'))
-                .width(86)
-                .height(116)
-              List({ space: 10 }) {
-                ForEach(this.saleGoods, (item: MkGoodsItem) => {
+              Row() {
+                Row({ space: 4 }) {
+                  Image($r('[basic].media.ic_public_search'))
+                    .width(16)
+                    .height(16)
+                    .fillColor($r('[basic].color.white'))
+                  Text('搜索...')
+                    .fontSize(14)
+                    .fontColor($r('[basic].color.white'))
+                }
+                .backgroundColor('#33191919')
+                .width('100%')
+                .height(40)
+                .borderRadius(20)
+                .padding({ left: 12 })
+              }
+              .padding({ left: 16, right: 16, top: this.safeTop })
+            }
+            .width('100%')
+
+            // 分类
+            Column({ space: 10 }) {
+              // 分类
+              List({ space: 16 }) {
+                ForEach(this.categories, (item: CategoryItem) => {
                   ListItem() {
-                    DiscountGoodsComp({ goods: item })
+                    Column() {
+                      Image(item.picture)
+                        .width(56)
+                        .aspectRatio(1)
+                      Text(item.name)
+                        .fontSize(10)
+                        .fontColor('#CC191919')
+                    }
+                    .width(60)
+                    .height(80)
+                    .borderRadius(30)
+
+                    .clip(true)
+                    .backgroundImage(item.picture)
+                    .backgroundImageSize(ImageSize.Contain)
+                    .backgroundImagePosition(Alignment.Center)
+                    .backgroundBlurStyle(
+                      BlurStyle.BACKGROUND_ULTRA_THICK,
+                      { scale: 0.25 }
+                    )
                   }
                 })
               }
-              .layoutWeight(1)
               .width('100%')
-              .height(116)
-              .backgroundColor($r('[basic].color.white'))
-              .borderRadius({
-                topRight: 8,
-                bottomRight: 8
-              })
-              .padding({ right: 10, left: 10 })
+              .height(92)
               .scrollBar(BarState.Off)
               .listDirection(Axis.Horizontal)
-            }
-          }
-          .width('100%')
-          .height(166)
-          .backgroundImage($r('app.media.home_cmd_sm'))
-          .backgroundImageSize(ImageSize.Cover)
-          .borderRadius(8)
-          .padding(10)
-          .alignItems(HorizontalAlign.Start)
+              .alignListItem(ListItemAlign.Center)
 
-          // 爆款推荐+一站买全
-          Row({ space: 10 }) {
-            this.DiscountBuilder({
-              title: '爆款推荐',
-              subTitle: '最受欢迎',
-              bg: '#EDF1FB',
-              list: this.hotGoods
-            })
-            this.DiscountBuilder({
-              title: '一站买全',
-              subTitle: '精心优选',
-              bg: '#FCF6EA',
-              list: this.oneGoods
-            })
-          }
-
-          // 新鲜好物
-          Column({ space: 10 }) {
-            Image($r('app.media.home_new'))
-              .width(146)
-              .height(19)
-            List({ space: 10 }) {
-              ForEach(this.newGoods, (item: MkGoodsItem) => {
-                ListItem() {
-                  DiscountGoodsComp({ type: DiscountType.NEW, goods: item })
+              // 特惠推荐
+              Column({ space: 10 }) {
+                Image($r('app.media.home_cmd_title'))
+                  .width(150)
+                  .height(20)
+                Row() {
+                  Image($r('app.media.home_cmd_inner'))
+                    .width(86)
+                    .height(116)
+                  List({ space: 10 }) {
+                    ForEach(this.saleGoods, (item: MkGoodsItem) => {
+                      ListItem() {
+                        DiscountGoodsComp({ goods: item })
+                      }
+                    })
+                  }
+                  .layoutWeight(1)
+                  .width('100%')
+                  .height(116)
+                  .backgroundColor($r('[basic].color.white'))
+                  .borderRadius({
+                    topRight: 8,
+                    bottomRight: 8
+                  })
+                  .padding({ right: 10, left: 10 })
+                  .scrollBar(BarState.Off)
+                  .listDirection(Axis.Horizontal)
                 }
-              })
-            }
-            .width('100%')
-            .height(116)
-            .scrollBar(BarState.Off)
-            .listDirection(Axis.Horizontal)
-          }
-          .width('100%')
-          .height(156)
-          .padding(10)
-          .backgroundColor('#F7EFF5')
-          .borderRadius(8)
-          .alignItems(HorizontalAlign.Start)
-
-          // 推荐商品
-          WaterFlow() {
-            ForEach(this.recommendGoods, (item: MkGoodsItem) => {
-              FlowItem() {
-                MkGoods({ goods: item })
               }
+              .width('100%')
+              .height(166)
+              .backgroundImage($r('app.media.home_cmd_sm'))
+              .backgroundImageSize(ImageSize.Cover)
+              .borderRadius(8)
+              .padding(10)
+              .alignItems(HorizontalAlign.Start)
+
+              // 爆款推荐+一站买全
+              Row({ space: 10 }) {
+                this.DiscountBuilder({
+                  title: '爆款推荐',
+                  subTitle: '最受欢迎',
+                  bg: '#EDF1FB',
+                  list: this.hotGoods
+                })
+                this.DiscountBuilder({
+                  title: '一站买全',
+                  subTitle: '精心优选',
+                  bg: '#FCF6EA',
+                  list: this.oneGoods
+                })
+              }
+
+              // 新鲜好物
+              Column({ space: 10 }) {
+                Image($r('app.media.home_new'))
+                  .width(146)
+                  .height(19)
+                List({ space: 10 }) {
+                  ForEach(this.newGoods, (item: MkGoodsItem) => {
+                    ListItem() {
+                      DiscountGoodsComp({ type: DiscountType.NEW, goods: item })
+                    }
+                  })
+                }
+                .width('100%')
+                .height(116)
+                .scrollBar(BarState.Off)
+                .listDirection(Axis.Horizontal)
+              }
+              .width('100%')
+              .height(156)
+              .padding(10)
+              .backgroundColor('#F7EFF5')
+              .borderRadius(8)
+              .alignItems(HorizontalAlign.Start)
+
+              // 推荐商品
+              WaterFlow() {
+                // ForEach(this.recommendGoods, (item: MkGoodsItem) => {
+                LazyForEach(this.recommendGoodsLazy, (item: MkGoodsItem) => {
+                  FlowItem() {
+                    MkGoods({ goods: item })
+                  }
+                })
+              }
+              .columnsTemplate('1fr 1fr')
+              .columnsGap(8)
+              .rowsGap(10)
+
+            }
+            .padding({
+              left: 8,
+              right: 8,
+              bottom: 10,
+              top: 10
             })
           }
-          .columnsTemplate('1fr 1fr')
-          .columnsGap(8)
-          .rowsGap(10)
-
         }
-        .padding({
-          left: 8,
-          right: 8,
-          bottom: 10,
-          top: 10
+        .scrollBar(BarState.Off)
+        .onReachEnd(async () => {
+          this.getMoreData()
         })
+        // 显示的淡入效果
+        .transition(TransitionEffect.OPACITY.animation({ duration: 200 }))
       }
+      .onRefreshing(async () => {
+        this.refresh = true;
+        await this.refreshData()
+        this.refresh = false
+      })
     }
-    .scrollBar(BarState.Off)
   }
 }
