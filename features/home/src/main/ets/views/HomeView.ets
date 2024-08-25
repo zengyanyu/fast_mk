@@ -1,4 +1,4 @@
-import { MkLoading } from '@mk/basic'
+import { BreakpointConstants, BreakPointType, MkLoading } from '@mk/basic'
 import {
   getBannerApi,
   getCategoryApi,
@@ -31,6 +31,9 @@ export struct HomeView {
   // @State recommendGoods: MkGoodsItem[] = []
   // 替换为下面
   @State recommendGoodsLazy: GoodsItemsDataSource = new GoodsItemsDataSource()
+  // 断点值
+  @StorageProp(BreakpointConstants.BREAK_POINT_KEY)
+  currentBreakpoint: string = ''
   // 顶部安全区域
   @StorageProp('safeTop')
   safeTop: number = 0
@@ -238,7 +241,25 @@ export struct HomeView {
                   Image(item.imgUrl)
                 })
               }
+              // 轮播图张数
+              .displayCount(new BreakPointType({
+                sm: 1,
+                md: 2,
+                lg: 3
+              }).getValue(this.currentBreakpoint))
+              // 间隙
+              .itemSpace(
+                new BreakPointType({
+                  sm: 0,
+                  md: 10,
+                  lg: 20
+                }).getValue(this.currentBreakpoint)
+              )
+              // 底部的导航点
               .indicator(
+                this.currentBreakpoint !== BreakpointConstants.SM ?
+                  false :
+                  // 圆点模式
                 DotIndicator.dot()
                   .itemWidth(8)
                   .itemHeight(4)
@@ -269,7 +290,13 @@ export struct HomeView {
             .width('100%')
 
             // 分类
-            Column({ space: 10 }) {
+            Column({
+              space: new BreakPointType({
+                sm: 14,
+                md: 36,
+                lg: 72
+              }).getValue(this.currentBreakpoint)
+            }) {
               // 分类
               List({ space: 16 }) {
                 ForEach(this.categories, (item: CategoryItem) => {
@@ -312,7 +339,13 @@ export struct HomeView {
                   Image($r('app.media.home_cmd_inner'))
                     .width(86)
                     .height(116)
-                  List({ space: 10 }) {
+                  List({
+                    space: new BreakPointType({
+                      sm: 14,
+                      md: 36,
+                      lg: 72
+                    }).getValue(this.currentBreakpoint)
+                  }) {
                     ForEach(this.saleGoods, (item: MkGoodsItem) => {
                       ListItem() {
                         DiscountGoodsComp({ goods: item })
@@ -361,7 +394,13 @@ export struct HomeView {
                 Image($r('app.media.home_new'))
                   .width(146)
                   .height(19)
-                List({ space: 10 }) {
+                List({
+                  space: new BreakPointType({
+                    sm: 14,
+                    md: 36,
+                    lg: 72
+                  }).getValue(this.currentBreakpoint)
+                }) {
                   ForEach(this.newGoods, (item: MkGoodsItem) => {
                     ListItem() {
                       DiscountGoodsComp({ type: DiscountType.NEW, goods: item })
@@ -389,7 +428,11 @@ export struct HomeView {
                   }
                 })
               }
-              .columnsTemplate('1fr 1fr')
+              .columnsTemplate(new BreakPointType({
+                sm: '1fr 1fr',
+                md: '1fr 1fr 1fr',
+                lg: '1fr 1fr 1fr 1fr'
+              }).getValue(this.currentBreakpoint))
               .columnsGap(8)
               .rowsGap(10)
 

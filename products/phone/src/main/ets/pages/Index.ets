@@ -51,7 +51,7 @@ struct Index {
   }
 
   build() {
-    Tabs( /*{ barPosition: BarPosition.End }*/) {
+    Tabs() {
       ForEach(this.list, (item: TabItem, index: number) => {
         TabContent() {
           if (index == 0) {
@@ -73,7 +73,7 @@ struct Index {
       md: BarPosition.End,
       lg: BarPosition.Start
     }).getValue(this.breakPoint))
-    .vertical(this.breakPoint === BreakpointConstants.LG ? true : false)
+    .vertical(this.breakPoint === BreakpointConstants.LG)
     .scrollable(false)
     .onTabBarClick(index => {
       this.activeIndex = index
