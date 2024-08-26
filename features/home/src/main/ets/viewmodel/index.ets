@@ -55,7 +55,7 @@ export interface Params {
 }
 
 // 其他略
-class BasicDataSource implements IDataSource {
+export class BasicDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
   private originDataArray: object[] = [];
 
@@ -120,7 +120,7 @@ class BasicDataSource implements IDataSource {
   }
 }
 
-export class GoodsItemsDataSource extends BasicDataSource {
+export class MKDataSource extends BasicDataSource {
   private dataArray: object[] = [];
 
   public totalCount(): number {
@@ -147,3 +147,9 @@ export class GoodsItemsDataSource extends BasicDataSource {
     this.notifyDataReload()
   }
 }
+
+export interface SearchResult {
+  // conditions: Conditions;
+  pageData: GoodsItems;
+}
+
