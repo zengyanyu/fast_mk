@@ -12,7 +12,7 @@ export struct SearchView {
   @StorageProp('safeTop') safeTop: number = 0
   @State keyword: string = ''
   @Consume // 传递给后代组件
-  pageStack: NavPathStack
+  pathStack: NavPathStack
 
   aboutToAppear(): void {
     window.getLastWindow(getContext())
@@ -40,7 +40,7 @@ export struct SearchView {
             .fillColor($r('[basic].color.white'))
             .margin(13)
             .onClick(() => {
-              this.pageStack.pop()
+              this.pathStack.pop()
             })
           // 搜索组件
           Search({ placeholder: '商品关键字...', value: this.keyword })
@@ -62,10 +62,8 @@ export struct SearchView {
               // AlertDialog.show({
               //   message: value
               // })
-              this.pageStack.pushPathByName('SearchResultView', value)
+              this.pathStack.pushPathByName('SearchResultView', value)
             })
-
-
         }
         .padding({ top: this.safeTop, right: 16 })
         .linearGradient({

@@ -43,8 +43,8 @@ export struct HomeView {
   @State isLoading: boolean = false
   // 下拉刷新
   @State refresh: boolean = false
-  @Provide
-  pathStack: NavPathStack = new NavPathStack()
+  @Consume
+  pathStack: NavPathStack
 
   aboutToAppear() {
     this.getAllData()

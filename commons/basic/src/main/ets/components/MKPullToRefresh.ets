@@ -1,4 +1,4 @@
-import { PullToRefresh } from '@ohos/pullToRefresh'
+import { PullToRefresh } from '@ohos/pulltorefresh'
 
 
 export { PullToRefresh as MKPullToRefresh }

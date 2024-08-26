@@ -19,6 +19,8 @@ struct Index {
   activeIndex: number = 0
   @StorageProp('safeBottom')
   safeBottom: number = 0
+  @Provide // 传递给后代组件
+  pathStack: NavPathStack = new NavPathStack()
   list: TabItem[] = [
     {
       text: '首页',
@@ -51,33 +53,36 @@ struct Index {
   }
 
   build() {
-    Tabs() {
-      ForEach(this.list, (item: TabItem, index: number) => {
-        TabContent() {
-          if (index == 0) {
-            HomeView()
-          } else if (index == 1) {
-            CategoryView()
-          } else if (index == 2) {
-            CartView()
-          } else {
-            MyViews()
+    Navigation(this.pathStack) {
+      Tabs() {
+        ForEach(this.list, (item: TabItem, index: number) => {
+          TabContent() {
+            if (index == 0) {
+              HomeView()
+            } else if (index == 1) {
+              CategoryView()
+            } else if (index == 2) {
+              CartView()
+            } else {
+              MyViews()
+            }
           }
-        }
-        .tabBar(this.TabItemBuilder(item, index))
+          .tabBar(this.TabItemBuilder(item, index))
+        })
+      }
+      .padding({ bottom: this.safeBottom })
+      .barPosition(new BreakPointType({
+        sm: BarPosition.End,
+        md: BarPosition.End,
+        lg: BarPosition.Start
+      }).getValue(this.breakPoint))
+      .vertical(this.breakPoint === BreakpointConstants.LG)
+      .scrollable(false)
+      .onTabBarClick(index => {
+        this.activeIndex = index
       })
-    }
-    .padding({ bottom: this.safeBottom })
-    .barPosition(new BreakPointType({
-      sm: BarPosition.End,
-      md: BarPosition.End,
-      lg: BarPosition.Start
-    }).getValue(this.breakPoint))
-    .vertical(this.breakPoint === BreakpointConstants.LG)
-    .scrollable(false)
-    .onTabBarClick(index => {
-      this.activeIndex = index
-    })
+    }.hideTitleBar(true) // 不显示标题栏
+    .mode(NavigationMode.Stack)
   }
 
   @Builder
