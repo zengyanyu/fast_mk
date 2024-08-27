@@ -71,8 +71,20 @@ export struct SearchView {
           colors: [[$r('[basic].color.linear_begin'), 0], [$r('[basic].color.linear_end'), 1]]
         })
 
-        //   语音识别的组件
-        AudioSearchComp()
+        // 语音识别的组件
+        AudioSearchComp({
+          // 实时更新
+          onChange: (keyword: string) => {
+            this.keyword = keyword
+          },
+          // 最终提交
+          onComplete: (keyword: string) => {
+            // Logger.info('onComplete' + keyword)
+            // 携带 最终的文本，跳转到 搜索结果页
+            // 输入完毕之后，希望让用户调整文本，自行跳转，注释下面这行即可
+            this.pathStack.pushPathByName('SearchResultView', keyword)
+          }
+        })
       }
     }
     .hideTitleBar(true)
