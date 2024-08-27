@@ -9,19 +9,26 @@ function GoodsViewBuilder() {
 
 @Component
 export struct GoodsView {
-  @StorageProp('safeBottom') safeBottom: number = 0
-  @State goods: Goods = {} as Goods
-  @State activeIndex: number = 0
-  @State showSheet: boolean = false
-  @State count: number = 1
-  @State loading: boolean = false
+  @StorageProp('safeBottom')
+  safeBottom: number = 0
+  @State
+  goods: Goods = {} as Goods
+  @State
+  activeIndex: number = 0
+  @State
+  showSheet: boolean = false
+  @State
+  count: number = 1
+  @State
+  loading: boolean = false
   @State
   sku: HmSku = {} as HmSku
   scroller = new Scroller()
   @Consume
   pathStack: NavPathStack
   tabs: string[] = ['商品', '评价', '详情', '推荐']
-  dialog = new CustomDialogController({
+  // 自定义弹窗
+  dialog: CustomDialogController = new CustomDialogController({
     builder: MKDialogLoading({ message: '拼命加载中' }),
     customStyle: true, // 设置为自定义样式
     alignment: DialogAlignment.Center // 显示方式为居中
@@ -46,7 +53,7 @@ export struct GoodsView {
 
   @Builder
   CustomTitleBuilder() {
-    Tabs({ index: $$this.activeIndex }) {
+    Tabs({ index: this.activeIndex }) {
       ForEach(this.tabs, (item: string, index: number) => {
         TabContent() {
         }
