@@ -209,8 +209,6 @@ export struct SearchResultView {
           customRefresh: null,
         })
           .layoutWeight(1)
-
-
       }
     }
     .hideTitleBar(true)
@@ -224,7 +222,7 @@ export struct SearchResultView {
         FlowItem() {
           MkGoods({ goods: item, smallImage: true })
         }
-      })
+      }, (item: MkGoodsItem, index) => JSON.stringify(item) + index)
     }
     .columnsTemplate("1fr 1fr")
     .columnsGap(0.5)

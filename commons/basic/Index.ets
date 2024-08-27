@@ -18,4 +18,10 @@ export * from './src/main/ets/components/MKPullToRefresh'
 
 export * from './src/main/ets/components/MkGoods'
 
+export * from './src/main/ets/utils/Auth'
+
+export * from './src/main/ets/components/MkGuess'
+
+export * from './src/main/ets/components/MkCell'
+
 export * from './src/main/ets/utils/PermissionPlugin'

@@ -1,15 +1,23 @@
+import { getGuessLikeApi } from '../api'
 import { MkGoodsItem } from '../viewmodel'
 import { MkGoods } from './MkGoods'
 
-
+// 猜你喜欢
 @Component
 export struct MkGuess {
   @State likeGoods: MkGoodsItem[] = []
   @State loading: boolean = false
   limit: number = 8
 
-  aboutToAppear(): void {
+  async getData() {
+    const res = await getGuessLikeApi();
+    this.likeGoods = res.data.result.items;
+  }
+
+  async aboutToAppear() {
     this.loading = true
+    await this.getData()
+    this.loading = false
   }
 
   build() {
