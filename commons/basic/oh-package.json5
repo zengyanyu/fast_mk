@@ -11,5 +11,6 @@
     "@ohos/pulltorefresh": "^2.0.6"
   },
   "devDependencies": {},
-  "dynamicDependencies": {}
+  "dynamicDependencies": {
+  }
 }

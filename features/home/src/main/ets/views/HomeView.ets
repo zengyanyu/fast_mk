@@ -1,4 +1,15 @@
-import { BreakpointConstants, BreakPointType, MkLoading } from '@mk/basic'
+import {
+  Banner,
+  BreakpointConstants,
+  BreakPointType,
+  CategoryItem,
+  HotResult,
+  MKDataSource,
+  MkGoods,
+  MkGoodsItem,
+  MkLoading,
+  Params
+} from '@mk/basic'
 import {
   getBannerApi,
   getCategoryApi,
@@ -9,8 +20,6 @@ import {
   getRecommendApi
 } from '../api'
 import { DiscountGoodsComp, DiscountType } from '../components/DiscountGoodsComp'
-import { MkGoods } from '../components/MkGoods'
-import { Banner, CategoryItem, HotResult, MKDataSource, MkGoodsItem, Params } from '../viewmodel'
 
 
 @Component

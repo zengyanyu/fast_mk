@@ -1,7 +1,5 @@
-import { MkGoodsItem, MKPullToRefresh } from '@mk/basic'
-import { MkGoods } from '../components/MkGoods'
+import { MKDataSource, MkGoods, MkGoodsItem, MKPullToRefresh } from '@mk/basic'
 import { promptAction } from '@kit.ArkUI'
-import { MKDataSource } from '../viewmodel/index'
 import { searchGoodsApi } from '../api'
 
 // 联合类型

@@ -1,6 +1,5 @@
-import { CategoryItem, MkGoodsItem, RequestAxios } from '@mk/basic'
+import { Banner, CategoryItem, HotResult, MkGoodsItem, RequestAxios, SearchResult } from '@mk/basic'
 // 数据类型已经提供好了
-import { Banner, HotResult, SearchResult } from '../viewmodel/index'
 import { SearchParams } from '../views/SearchResultView'
 
 export const getBannerApi = () => {

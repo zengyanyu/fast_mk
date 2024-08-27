@@ -16,4 +16,6 @@ export * from './src/main/ets/components/MkNavBar'
 
 export * from './src/main/ets/components/MKPullToRefresh'
 
+export * from './src/main/ets/components/MkGoods'
+
 export * from './src/main/ets/utils/PermissionPlugin'

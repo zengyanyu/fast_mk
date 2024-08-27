@@ -2,7 +2,7 @@ import { BreakpointConstants, BreakPointType, Logger } from '@mk/basic'
 import { CartView } from '@mk/cart'
 import { CategoryView } from '@mk/category'
 import { HomeView } from '@mk/home'
-import { MyViews } from '@mk/my'
+import { MyView } from '@mk/my'
 
 interface TabItem {
   text: string
@@ -64,7 +64,7 @@ struct Index {
             } else if (index == 2) {
               CartView()
             } else {
-              MyViews()
+              MyView()
             }
           }
           .tabBar(this.TabItemBuilder(item, index))
