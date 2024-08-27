@@ -1,4 +1,5 @@
 import { Banner, CategoryItem, HotResult, MkGoodsItem, RequestAxios, SearchResult } from '@mk/basic'
+import { Goods } from '../viewmodel'
 // 数据类型已经提供好了
 import { SearchParams } from '../views/SearchResultView'
 
@@ -43,4 +44,11 @@ export const searchGoodsApi = (data: SearchParams) => {
   return RequestAxios.post<SearchResult>('/search/all', data)
 }
 
+export const getGoodsApi = (id: string) => {
+  return RequestAxios.get<Goods>('/goods', {
+    params: {
+      id
+    }
+  })
+}
 

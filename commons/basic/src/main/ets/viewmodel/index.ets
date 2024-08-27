@@ -153,3 +153,51 @@ export interface SearchResult {
   pageData: GoodsItems;
 }
 
+// =============
+/* 属性值信息 */
+export interface HmSpecValue {
+  /* 属性文字值 */
+  name: string
+  /* 属性图片值 */
+  picture: string | null
+  /* 组件内（数据可忽悠）-选择状态 */
+  selected: boolean | null
+  /* 组件内（数据可忽悠）-禁用状态 */
+  disabled: boolean | null
+}
+
+/* 属性信息 */
+export interface HmSpec {
+  /* 属性名称 */
+  name: string
+  /* 属性可选择的值 */
+  values: HmSpecValue[]
+}
+
+/* SKU包含属性信息 */
+export interface HmSpecSelected {
+  /* 属性名称 */
+  name: string
+  /* 属性值 */
+  valueName: string
+}
+
+/* SKU信息 */
+export interface HmSku {
+  /* SKU ID */
+  id: string
+  /* SKU 码 */
+  skuCode: string
+  /* SKU 现价 */
+  price: string
+  /* SKU 原价 */
+  oldPrice: string
+  /* SKU 库存 */
+  inventory: number
+  /* SKU 包含属性集 */
+  specs: HmSpecSelected[]
+  /* SKU 包含属性值拼接（onSkuChange 获取） */
+  specsText: string | null
+  /* SKU 对应商品图片（onSkuChange 获取） */
+  picture: string | null
+}

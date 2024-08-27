@@ -1,4 +1,4 @@
-import { BreakpointConstants, BreakPointType, Logger } from '@mk/basic'
+import { BreakpointConstants, BreakPointType, Logger, MKNavPathStack } from '@mk/basic'
 import { CartView } from '@mk/cart'
 import { CategoryView } from '@mk/category'
 import { HomeView } from '@mk/home'
@@ -20,7 +20,7 @@ struct Index {
   @StorageProp('safeBottom')
   safeBottom: number = 0
   @Provide // 传递给后代组件
-  pathStack: NavPathStack = new NavPathStack()
+  pathStack: NavPathStack = MKNavPathStack
   list: TabItem[] = [
     {
       text: '首页',

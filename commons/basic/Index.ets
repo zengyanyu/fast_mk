@@ -20,7 +20,11 @@ export * from './src/main/ets/components/MkGoods'
 
 export * from './src/main/ets/utils/Auth'
 
+export * from './src/main/ets/utils/NavPathStack'
+
 export * from './src/main/ets/components/MkGuess'
+
+export * from './src/main/ets/components/MkDialogLoading'
 
 export * from './src/main/ets/components/MkCell'
 

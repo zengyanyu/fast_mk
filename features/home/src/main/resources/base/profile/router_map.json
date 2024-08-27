@@ -15,6 +15,14 @@
       "data": {
         "description": "this is SearchResultView"
       }
+    },
+    {
+      "name": "GoodsView",
+      "pageSourceFile": "src/main/ets/views/GoodsView.ets",
+      "buildFunction": "GoodsViewBuilder",
+      "data": {
+        "description": "this is GoodsViewBuilder"
+      }
     }
   ]
 }
