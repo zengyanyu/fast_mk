@@ -113,7 +113,6 @@ export struct HomeView {
 
   @Builder
   DiscountBuilder(params: Params) {
-
     Column() {
       Row({ space: 10 }) {
         Text(params.title)
@@ -144,7 +143,6 @@ export struct HomeView {
     .backgroundColor(params.bg)
     .borderRadius(8)
     .margin({
-
       top: AppStorage.get<number>('safeTop')
     })
   }
@@ -163,7 +161,7 @@ export struct HomeView {
   build() {
     Navigation(this.pathStack) {
       if (this.isLoading) {
-        MkLoading();
+        MkLoading()
       } else {
         Refresh({ refreshing: this.refresh, builder: this.RefreshBuilder() }) {
           Scroll() {
@@ -396,5 +394,6 @@ export struct HomeView {
         })
       }
     }
+    .mode(NavigationMode.Stack)
   }
 }

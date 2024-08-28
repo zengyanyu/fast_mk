@@ -168,6 +168,7 @@ export struct MyView {
       .height('100%')
       .backgroundColor($r('[basic].color.under'))
     }
+    .mode(NavigationMode.Stack)
   }
 }
 
