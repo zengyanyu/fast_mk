@@ -124,6 +124,7 @@ export struct SearchResultView {
             .fillColor($r('[basic].color.white'))
             .margin(13)
             .onClick(() => {
+              // 返回
               this.pathStack.pop()
             })
           Search({ placeholder: '商品关键字...', value: this.params.keyword })

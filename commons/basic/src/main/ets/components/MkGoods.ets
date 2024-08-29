@@ -4,6 +4,8 @@ import { MkGoodsItem } from '../viewmodel'
 export struct MkGoods {
   goods: MkGoodsItem = {} as MkGoodsItem
   smallImage: boolean = false
+  @Consume
+  pathStack: NavPathStack
 
   build() {
     Column({ space: 10 }) {
@@ -50,5 +52,9 @@ export struct MkGoods {
     .backgroundColor($r('app.color.white'))
     .borderRadius(8)
     .clip(true)
+    .onClick(() => {
+      // 带上 商品的简略信息，保证详情页也有基本的内容
+      this.pathStack.pushPathByName('GoodsView', this.goods)
+    })
   }
 }

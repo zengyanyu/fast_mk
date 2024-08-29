@@ -40,6 +40,7 @@ export struct SearchView {
             .fillColor($r('[basic].color.white'))
             .margin(13)
             .onClick(() => {
+              // 返回
               this.pathStack.pop()
             })
           // 搜索组件

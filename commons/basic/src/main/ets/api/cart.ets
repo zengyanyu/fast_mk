@@ -41,7 +41,6 @@ export class Cart {
     const res = await RequestAxios.get<CountResult>('/member/cart/count')
     AppStorage.setOrCreate(CartKey, res.data.result.count)
     return res.data.result.count
-
   }
 
   // 列表
