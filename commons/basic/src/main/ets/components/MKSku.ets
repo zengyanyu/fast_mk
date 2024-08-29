@@ -1,5 +1,5 @@
-import { HmSku, HmSpec, Sku } from '@ohmos/sku'
+import { Sku } from '@ohmos/sku'
 
 export {
-  Sku as MKSku, HmSku, HmSpec
+  Sku as MKSku
 }

@@ -1,4 +1,6 @@
 // commons/basic/src/main/ets/constants/index.ets
+import { emitter } from '@kit.BasicServicesKit';
+
 export class BreakpointConstants {
   // 手表等超小屏
   static readonly XS: string = 'xs';
@@ -10,4 +12,11 @@ export class BreakpointConstants {
   static readonly LG: string = 'lg';
   // AppStorage 中的 key
   static readonly BREAK_POINT_KEY: string = 'currentBreakpoint'
+}
+
+export class EmitterKey {
+  // 切换 tab
+  static CHANGE_TAB: emitter.InnerEvent = { eventId: 10001 }
+  // 刷新购物车列表
+  static REFRESH_LIST: emitter.InnerEvent = { eventId: 10002 }
 }

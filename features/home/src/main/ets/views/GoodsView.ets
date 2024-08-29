@@ -1,37 +1,51 @@
-import { MkGoodsItem, MkGuess, MkNavbar, HmSku, MKDialogLoading } from '@mk/basic'
+import {
+  MkGoodsItem,
+  MkGuess,
+  MkNavbar,
+  HmSku,
+  Logger,
+  MKDialogLoading,
+  MKSku,
+  auth,
+  cart,
+  CartKey,
+  EmitterKey
+} from '@mk/basic'
 import { Goods } from '../viewmodel'
-import { window } from '@kit.ArkUI'
+import { promptAction, window } from '@kit.ArkUI'
+import { emitter } from '@kit.BasicServicesKit'
+import { getGoodsApi } from '../api'
+
 
 @Builder
 function GoodsViewBuilder() {
   GoodsView()
 }
 
+
 @Component
 export struct GoodsView {
-  @StorageProp('safeBottom')
-  safeBottom: number = 0
-  @State
-  goods: Goods = {} as Goods
-  @State
-  activeIndex: number = 0
-  @State
-  showSheet: boolean = false
-  @State
-  count: number = 1
-  @State
-  loading: boolean = false
+  @StorageProp('safeBottom') safeBottom: number = 0
+  @State goods: Goods = {} as Goods
+  @State activeIndex: number = 0
+  @State showSheet: boolean = false
+  @State count: number = 1 // 商品个数
+  @State loading: boolean = false
   @State
   sku: HmSku = {} as HmSku
   scroller = new Scroller()
   @Consume
   pathStack: NavPathStack
+  // tabs 的数组
   tabs: string[] = ['商品', '评价', '详情', '推荐']
-  // 自定义弹窗
-  dialog: CustomDialogController = new CustomDialogController({
+  // 获取购物车的个数
+  @StorageProp(CartKey)
+  cartCount: number = 0
+  // 自定义全屏 Loading 模态框
+  dialog = new CustomDialogController({
     builder: MKDialogLoading({ message: '拼命加载中' }),
-    customStyle: true, // 设置为自定义样式
-    alignment: DialogAlignment.Center // 显示方式为居中
+    customStyle: true,
+    alignment: DialogAlignment.Center
   })
 
   setStatusBar() {
@@ -41,27 +55,56 @@ export struct GoodsView {
       })
   }
 
+  // 获取详情数据
+  async getGoodsData() {
+    this.dialog.open()
+    const res = await getGoodsApi(this.goods.id)
+    this.goods = res.data.result
+    // Logger.info(res.data.result)
+    this.dialog.close()
+  }
+
   async aboutToAppear() {
     // 接收并解析数据
+    // this.pageStack.getParamByName('GoodsView')
+    // 返回的是 页面栈中所有同名页面的参数数组
+    Logger.info(this.pathStack.getParamByName('GoodsView'))
+    // 获取所有的参数
+    const params = this.pathStack.getParamByName('GoodsView') as Goods[]
+    // 获取最后一个
+    this.goods = params.pop() as Goods
+    // 获取详情
+    this.getGoodsData()
     this.setStatusBar()
   }
 
   @Builder
-  tabBuilder(item: string, index: number) {
-
+  tabBarBuilder(text: string, idx: number) {
+    Row() {
+      Text(text)
+        .fontSize(14)
+        .fontColor(this.activeIndex === idx ? $r('[basic].color.black') : $r('[basic].color.gray'))
+        .padding({ bottom: 8 })
+    }
+    .height('100%')
+    .width('100%')
+    .justifyContent(FlexAlign.Center)
   }
 
   @Builder
   CustomTitleBuilder() {
-    Tabs({ index: this.activeIndex }) {
-      ForEach(this.tabs, (item: string, index: number) => {
-        TabContent() {
-        }
-        .tabBar(this.tabBuilder(item, index))
+    Tabs() {
+      ForEach(this.tabs, (item: string, index) => {
+        TabContent()
+          .tabBar(this.tabBarBuilder(item, index))
       })
     }
     .width(150)
-    .onTabBarClick(index => this.activeIndex = index)
+    .onTabBarClick((index) => {
+      this.activeIndex = index
+      // 加了动画之后，文字切换的速度比预期的慢
+      this.scroller.scrollToIndex(index, true)
+    })
 
     Blank()
     // 楼层切换
@@ -72,7 +115,7 @@ export struct GoodsView {
   @Builder
   AddCartBuilder() {
     Column() {
-      Text('已选: ' + '')
+      Text('已选: ' + (!!this.sku.specsText ? this.sku.specsText : ''))
         .fontWeight(300)
         .width('100%')
         .fontColor($r('[basic].color.black'))
@@ -81,7 +124,7 @@ export struct GoodsView {
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
       Row({ space: 10 }) {
-        Image(this.goods.mainPictures?.[0])
+        Image(this.sku.picture || this.goods.mainPictures?.[0])
           .alt($r('app.media.ic_sku_img'))
           .width(80)
           .height(80)
@@ -93,11 +136,11 @@ export struct GoodsView {
               .fontSize(14)
               .fontColor($r('[basic].color.black'))
               .offset({ y: -4 })
-            Text(this.goods.price)
+            Text(this.sku.price || this.goods.price)
               .fontSize(24)
               .fontColor($r('[basic].color.black'))
               .fontWeight(500)
-            Text('原价¥' + (this.goods.price))
+            Text('原价¥' + (this.sku.oldPrice || this.goods.price))
               .fontSize(12)
               .fontColor($r('[basic].color.gray'))
               .margin({ left: 10 })
@@ -111,8 +154,19 @@ export struct GoodsView {
 
           Row({ space: 10 }) {
             // 计数器
+            Counter() {
+              Text(this.count.toString())
+            }
+            .onInc(() => {
+              this.count++
+            })
+            .onDec(() => {
+              this.count--
+            })
+            .enableDec(this.count > 1)
 
-            Text(`库存充足`)
+            // undefined.toString()
+            Text(this.sku.inventory?.toString() || `库存充足`)
               .fontSize(12)
               .fontColor($r('[basic].color.gray'))
           }
@@ -131,13 +185,16 @@ export struct GoodsView {
       List() {
         ListItem() {
           // Sku 组件
-          //  MKSku({
-          //   specs: this.goods.specs,
-          //   skus: this.goods.skus,
-          //   onSkuChange: (sku: HmSku) => {
-          //     this.sku = sku
-          //   }
-          // })
+          MKSku({
+            specs: this.goods.specs,
+            skus: this.goods.skus,
+            onSkuChange: (sku: HmSku) => {
+              // Logger.info(sku)
+              // 保存 渲染页面
+              this.sku = sku
+            }
+          })
+
         }
       }
       .layoutWeight(1)
@@ -147,6 +204,7 @@ export struct GoodsView {
         Button(this.loading ? '加入中...' : '加入购物袋')
           .buyButton($r('[basic].color.black'), true)
           .onClick(() => {
+            this.addToCart()
           })
         Button('立即购买')
           .buyButton($r('[basic].color.red'), false)
@@ -162,6 +220,35 @@ export struct GoodsView {
     })
   }
 
+  // 加入购物车
+  async addToCart() {
+    this.loading = true // 显示加入中
+    if (!auth.getUser()
+      .token) {
+      promptAction.showToast({
+        message: '请先登录'
+      })
+      return
+    }
+    if (!this.sku.id) {
+      promptAction.showToast({
+        message: '请选择分类'
+      })
+      return
+    }
+    await cart.add({ skuId: this.sku.id, count: this.count.toString() })
+    // 更新一下个数
+    await cart.count()
+    // 更新 列表
+    emitter.emit(EmitterKey.REFRESH_LIST)
+
+    promptAction.showToast({
+      message: '加入成功'
+    })
+    this.loading = false // 关闭 loading
+    this.showSheet = false
+  }
+
   build() {
     NavDestination() {
       Column() {
@@ -169,6 +256,9 @@ export struct GoodsView {
           showRightIcon: true,
           customTitle: () => {
             this.CustomTitleBuilder()
+          },
+          leftClickHandler: () => {
+            this.pathStack.pop()
           }
         })
         Column() {
@@ -209,21 +299,25 @@ export struct GoodsView {
           Image($r('[basic].media.ic_public_comment'))
             .iconButton()
           Badge({
-            count: 10,
+            count: this.cartCount,
             style: {},
             position: { x: 30, y: 4 }
           }) {
             Image($r('[basic].media.ic_public_cart'))
               .iconButton()
               .onClick(() => {
-
+                // 携带参数，让购物车页面，暂时返回按钮
+                this.pathStack.pushPathByName('CartView', true)
               })
           }
 
           Row() {
             Button('加入购物袋')
               .buyButton($r('[basic].color.black'), true)
-              .onClick(() => this.showSheet = true)
+              .onClick(() => {
+                // 这个按钮的作用就是弹出半模态
+                this.showSheet = true
+              })
             Button('立即购买')
               .buyButton($r('[basic].color.red'), false)
               .onClick(() => this.showSheet = true)

@@ -1,8 +1,9 @@
-import { BreakpointConstants, BreakPointType, Logger, MKNavPathStack } from '@mk/basic'
+import { BreakpointConstants, BreakPointType, CartKey, EmitterKey, Logger, MKNavPathStack } from '@mk/basic'
 import { CartView } from '@mk/cart'
 import { CategoryView } from '@mk/category'
 import { HomeView } from '@mk/home'
 import { MyView } from '@mk/my'
+import { emitter } from '@kit.BasicServicesKit'
 
 interface TabItem {
   text: string
@@ -43,6 +44,10 @@ struct Index {
       active: $r('app.media.ic_public_my_active')
     },
   ]
+  // 获取个数
+  @StorageProp(CartKey)
+  count: number = 0
+  tabController = new TabsController()
 
   aboutToAppear(): void {
     Logger.info({
@@ -54,7 +59,7 @@ struct Index {
 
   build() {
     Navigation(this.pathStack) {
-      Tabs() {
+      Tabs({ controller: this.tabController }) {
         ForEach(this.list, (item: TabItem, index: number) => {
           TabContent() {
             if (index == 0) {
@@ -80,6 +85,9 @@ struct Index {
       .scrollable(false)
       .onTabBarClick(index => {
         this.activeIndex = index
+        if (index === 2) {
+          emitter.emit(EmitterKey.REFRESH_LIST)
+        }
       })
     }.hideTitleBar(true) // 不显示标题栏
     .mode(NavigationMode.Stack)
@@ -87,16 +95,22 @@ struct Index {
 
   @Builder
   TabItemBuilder(item: TabItem, index: number) {
-    Column() {
-      Image(this.activeIndex === index ? item.active : item.normal)
-        .width(24)
-        .aspectRatio(1)
-      Text(item.text)// 跨 HSP 访问资源，需要在 oh-package.json5中导入
-        .fontColor($r('[basic].color.black'))
-        .fontSize(12)
+    // 角标
+    Badge({
+      // 小于等于零的时候,是不显示的;
+      count: index === 2 ? this.count : 0,
+      style: {}
+    }) {
+      Column() {
+        Image(this.activeIndex === index ? item.active : item.normal)
+          .width(24)
+          .aspectRatio(1)
+        Text(item.text)// 跨 HSP 访问资源，需要在 oh-package.json5中导入
+          .fontColor($r('[basic].color.black'))
+          .fontSize(12)
+      }.justifyContent(FlexAlign.SpaceEvenly)
+      .height(50)
     }
-    .justifyContent(FlexAlign.SpaceEvenly)
-    .height(50)
   }
 }
 
