@@ -19,4 +19,6 @@ export class EmitterKey {
   static CHANGE_TAB: emitter.InnerEvent = { eventId: 10001 }
   // 刷新购物车列表
   static REFRESH_LIST: emitter.InnerEvent = { eventId: 10002 }
+  // 刷新地址
+  static REFRESH_ADDRESS: emitter.InnerEvent = { eventId: 10003 }
 }

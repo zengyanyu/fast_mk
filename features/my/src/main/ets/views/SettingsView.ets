@@ -52,6 +52,10 @@ export struct SettingsView {
 
           MkCellGroup() {
             MkCell({ label: '收货地址管理' })
+              .onClick(() => {
+                // 跳转到添加地址的界面
+                this.pathStack.pushPathByName("AddressManageView", null)
+              })
             MkCell({ label: '账号安全' })
             MkCell({ label: '消息设置' })
             MkCell({ label: '隐私设置' })

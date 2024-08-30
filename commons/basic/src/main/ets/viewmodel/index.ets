@@ -240,3 +240,16 @@ export class CartGoodsModel implements CartGoods {
   }
 }
 
+// 地址管理
+export interface AddressItem {
+  address: string
+  contact: string
+  fullLocation: string
+  id: string
+  isDefault: 0 | 1
+  receiver: string
+  provinceCode: number
+  cityCode: number
+  countyCode: number
+}
+
