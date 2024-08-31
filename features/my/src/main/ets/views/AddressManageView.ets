@@ -80,77 +80,75 @@ export struct AddressManageView {
         // 地址列表
         Row() {
           List() {
-            ForEach(
-              this.addressList,
-              (item: AddressItem) => {
-                ListItem() {
-                  Row() {
-                    Column() {
-                      Row() {
-                        // 是否默认
-                        if (item.isDefault == 0) {
-                          Row() {
-                            Text('默认')
-                              .fontSize(13)
-                              .fontColor($r('[basic].color.white'))
-                          }
-                          .borderRadius(2)
-                          .padding({
-                            left: 8,
-                            right: 8,
-                            top: 2,
-                            bottom: 2
-                          })
-                          .linearGradient({
-                            angle: '93',
-                            colors: [
-                              [
-                                '#FD3F8F',
-                                0
-                              ],
-                              [
-                                '#FF773C',
-                                1
-                              ]
-                            ]
-                          })
-                          .margin({
-                            right: 4
-                          })
+            ForEach(this.addressList, (item: AddressItem) => {
+              ListItem() {
+                Row() {
+                  Column() {
+                    Row() {
+                      // 是否默认
+                      if (item.isDefault == 0) {
+                        Row() {
+                          Text('默认')
+                            .fontSize(13)
+                            .fontColor($r('[basic].color.white'))
                         }
-
-                        Text(item.address)
-                          .fontColor('#434343')
-                          .fontSize(14)
+                        .borderRadius(2)
+                        .padding({
+                          left: 8,
+                          right: 8,
+                          top: 2,
+                          bottom: 2
+                        })
+                        .linearGradient({
+                          angle: '93',
+                          colors: [
+                            [
+                              '#FD3F8F',
+                              0
+                            ],
+                            [
+                              '#FF773C',
+                              1
+                            ]
+                          ]
+                        })
+                        .margin({
+                          right: 4
+                        })
                       }
 
-                      Text(`${item.receiver} ${item.contact}`)
-                        .margin({ top: 8 })
-                        .fontSize(12)
+                      Text(item.address)
+                        .fontColor('#434343')
+                        .fontSize(14)
                     }
-                    .alignItems(HorizontalAlign.Start)
 
-                    Row() {
-                      Image($r("app.media.ic_public_edit"))
-                        .width(16)
-                        .onClick(() => {
-                          this.pathStack.pushPathByName('AddressCreateView', item)
-                        })
-                    }
+                    Text(`${item.receiver} ${item.contact}`)
+                      .margin({ top: 8 })
+                      .fontSize(12)
                   }
-                  .padding(16)
-                  .width('100%')
-                  .justifyContent(FlexAlign.SpaceBetween)
-                  .backgroundColor($r('[basic].color.white'))
+                  .alignItems(HorizontalAlign.Start)
+
+                  Row() {
+                    Image($r("app.media.ic_public_edit"))
+                      .width(16)
+                      .onClick(() => {
+                        this.pathStack.pushPathByName('AddressCreateView', item)
+                      })
+                  }
                 }
-                .margin({ bottom: 10 })
-                .swipeAction({
-                  // 右滑动
-                  end: () => {
-                    this.ActionBuilder(item.id)
-                  }
-                })
+                .padding(16)
+                .width('100%')
+                .justifyContent(FlexAlign.SpaceBetween)
+                .backgroundColor($r('[basic].color.white'))
               }
+              .margin({ bottom: 10 })
+              .swipeAction({
+                // 右滑动
+                end: () => {
+                  this.ActionBuilder(item.id)
+                }
+              })
+            }
             )
           }
           .width('100%')
